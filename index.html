@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nordic Journey</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.12.0/cdn.min.js" defer></script>
+    <!-- 引入歐式襯線體 (Playfair Display) 與 易讀內文 (Lato) -->
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-cream: #F9F7F2;
+            --deep-navy: #2C3E50;
+            --terracotta: #D35400;
+            --sage-green: #7DCEA0;
+            --warm-gold: #F1C40F;
+            --text-main: #34495E;
+        }
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--bg-cream);
+            color: var(--text-main);
+            -webkit-tap-highlight-color: transparent;
+        }
+        h1, h2, h3, .serif-font {
+            font-family: 'Playfair Display', serif;
+        }
+        /* 卡片懸浮效果 */
+        .card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px -10px rgba(44, 62, 80, 0.1);
+            border: 1px solid rgba(44, 62, 80, 0.05);
+            transition: transform 0.2s;
+        }
+        .card:active {
+            transform: scale(0.99);
+        }
+        /* 隱藏捲軸但可滑動 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* 自定義標籤顏色 (莫蘭迪色系) */
+        .tag { padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+        .tag-food { background-color: #FAE5D3; color: #D35400; } /* 溫暖陶色 */
+        .tag-spot { background-color: #D6EAF8; color: #2980B9; } /* 柔和藍 */
+        .tag-trans { background-color: #EAECEE; color: #566573; } /* 質感灰 */
+        .tag-rest { background-color: #D5F5E3; color: #27AE60; } /* 鼠尾草綠 */
+        
+        /* 導航按鈕樣式 */
+        .nav-btn-active {
+            color: var(--deep-navy);
+            font-weight: bold;
+        }
+        .nav-btn-inactive {
+            color: #95A5A6;
+        }
+    </style>
+</head>
+<body x-data="tripApp()">
+
+    <!-- Header: 歐式深藍色塊設計 -->
+    <header class="fixed top-0 w-full bg-[#2C3E50] text-[#F9F7F2] z-50 shadow-md pt-12 pb-6 px-6 rounded-b-[24px]">
+        <div class="flex justify-between items-end max-w-md mx-auto">
+            <div>
+                <p class="text-[10px] tracking-[0.2em] uppercase opacity-80 mb-1">Travel Itinerary</p>
+                <h1 class="text-3xl font-bold serif-font tracking-wide">Nordic <br>Holidays</h1>
+            </div>
+            <div class="text-right">
+                <div class="text-xl serif-font italic" x-text="currentDateDisplay"></div>
+                <div class="text-xs opacity-70 uppercase tracking-widest mt-1">Day <span x-text="currentDayNum"></span></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="pt-40 pb-28 px-5 max-w-md mx-auto min-h-screen">
+        
+        <!-- Tab: Itinerary -->
+        <div x-show="activeTab === 'itinerary'" class="space-y-6">
+            
+            <!-- Date Scroller: 膠囊式設計 -->
+            <div class="flex overflow-x-auto space-x-3 pb-2 no-scrollbar snap-x py-2">
+                <template x-for="(day, index) in itinerary" :key="index">
+                    <button @click="scrollToDay(index)" 
+                            :class="{'bg-[#D35400] text-white shadow-lg transform -translate-y-1': activeDayIndex === index, 'bg-white text-[#566573] border border-[#EAECEE]': activeDayIndex !== index}"
+                            class="flex-shrink-0 w-12 h-14 rounded-xl flex flex-col items-center justify-center transition-all duration-300 snap-center">
+                        <span class="text-[10px] uppercase font-bold tracking-wider" x-text="day.weekday"></span>
+                        <span class="text-lg serif-font font-bold" x-text="day.shortDateOnly"></span>
+                    </button>
+                </template>
+            </div>
+
+            <!-- Active Day Card -->
+            <div class="card p-0 overflow-hidden relative">
+                <!-- Card Header Image/Pattern Area -->
+                <div class="bg-[#ECF0F1] h-24 p-5 flex justify-between items-start relative">
+                    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#2C3E50 1px, transparent 1px); background-size: 10px 10px;"></div>
+                    <div class="z-10">
+                        <h2 class="text-2xl font-bold text-[#2C3E50] serif-font" x-text="activeDay.location"></h2>
+                        <p class="text-sm text-[#7F8C8D] mt-1 italic serif-font" x-text="activeDay.title"></p>
+                    </div>
+                    <!-- Weather Stamp -->
+                    <div class="z-10 bg-white/80 backdrop-blur-sm px-3 py-2 rounded-lg border border-gray-200 shadow-sm flex flex-col items-center">
+                        <span class="text-2xl" x-text="activeDay.weatherIcon"></span>
+                        <span class="text-xs font-bold text-[#2C3E50]" x-text="activeDay.temp"></span>
+                    </div>
+                </div>
+
+                <!-- Timeline Content -->
+                <div class="p-6">
+                    <div class="space-y-8 relative">
+                        <!-- Vertical Line -->
+                        <div class="absolute left-[7px] top-2 bottom-2 w-[2px] bg-[#EAECEE]"></div>
+
+                        <template x-for="item in activeDay.items">
+                            <div class="relative pl-8">
+                                <!-- Dot -->
+                                <div class="absolute left-0 top-1.5 w-4 h-4 rounded-full border-4 border-white shadow-sm z-10"
+                                     :class="getTypeColor(item.type)"></div>
+                                
+                                <div>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-xs font-bold text-[#D35400] tracking-wide" x-text="item.time"></span>
+                                        <span class="tag" :class="getTypeTagClass(item.type)" x-text="getTypeLabel(item.type)"></span>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-[#2C3E50] leading-tight" x-html="item.name"></h3>
+                                    <p class="text-sm text-[#566573] mt-2 leading-relaxed" x-html="item.desc"></p>
+                                    
+                                    <!-- AI Tips: Note style -->
+                                    <template x-if="item.tips">
+                                        <div class="mt-3 bg-[#FEF9E7] p-3 rounded-lg border-l-4 border-[#F1C40F]">
+                                            <p class="text-xs text-[#7D6608] font-bold uppercase tracking-wider mb-1">Travel Tip</p>
+                                            <p class="text-xs text-[#566573] italic" x-html="item.tips"></p>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <!-- Buttons: Outline style -->
+                                <div class="flex gap-3 mt-4">
+                                    <button @click="openMap(item.name, activeDay.location)" 
+                                            class="flex-1 text-xs border border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white px-3 py-2 rounded font-bold uppercase tracking-wider transition-colors">
+                                        Google Map
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Hotel Footer -->
+                <div class="bg-[#F4F6F6] p-4 border-t border-[#EAECEE]">
+                    <div class="flex items-center gap-3">
+                        <div class="text-[#2C3E50] text-xl">🛏</div>
+                        <div>
+                            <p class="text-[10px] text-[#95A5A6] uppercase tracking-widest">Accommodation</p>
+                            <p class="text-sm font-bold text-[#2C3E50] serif-font" x-text="activeDay.hotel"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Tools -->
+        <div x-show="activeTab === 'tools'" class="space-y-6">
+            <h2 class="text-3xl font-bold text-[#2C3E50] serif-font mb-6">Travel Tools</h2>
+
+            <!-- Flight Ticket Style -->
+            <div class="card p-0 relative overflow-hidden">
+                <div class="bg-[#2C3E50] h-3"></div> <!-- Blue top bar -->
+                <div class="p-5">
+                    <h3 class="text-lg font-bold text-[#2C3E50] mb-4 flex items-center gap-2 serif-font">
+                        <span>✈️</span> Flight Information
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="border-b border-dashed border-gray-300 pb-4">
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <div class="text-3xl font-black text-[#2C3E50]">TPE</div>
+                                    <div class="text-xs text-gray-400">Taipei</div>
+                                </div>
+                                <div class="text-gray-300">✈</div>
+                                <div class="text-right">
+                                    <div class="text-3xl font-black text-[#2C3E50]">CPH</div>
+                                    <div class="text-xs text-gray-400">Copenhagen</div>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex justify-between text-sm font-bold text-[#D35400]">
+                                <span>5/17</span>
+                                <span>16:10</span>
+                            </div>
+                        </div>
+                        
+                        <div class="border-b border-dashed border-gray-300 pb-4">
+                             <div class="flex justify-between items-end">
+                                <div><span class="text-xl font-bold text-[#2C3E50]">CPH</span></div>
+                                <div class="text-xs text-gray-500">Brother's Return</div>
+                                <div><span class="text-xl font-bold text-[#2C3E50]">TPE</span></div>
+                            </div>
+                             <div class="mt-1 flex justify-between text-xs font-bold text-[#D35400]">
+                                <span>6/2</span>
+                                <span>11:55</span>
+                            </div>
+                        </div>
+
+                         <div>
+                             <div class="flex justify-between items-end">
+                                <div><span class="text-xl font-bold text-[#2C3E50]">CPH</span></div>
+                                <div class="text-xs text-gray-500">My Return</div>
+                                <div><span class="text-xl font-bold text-[#2C3E50]">TPE</span></div>
+                            </div>
+                             <div class="mt-1 flex justify-between text-xs font-bold text-[#D35400]">
+                                <span>6/6</span>
+                                <span>11:55</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Card -->
+            <div class="card p-5 border-l-4 border-[#C0392B]">
+                <h3 class="text-lg font-bold text-[#C0392B] mb-4 serif-font">Emergency</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <a href="tel:112" class="bg-[#F2D7D5] py-3 rounded text-center text-[#C0392B] font-bold">
+                        SOS 112
+                    </a>
+                    <a href="tel:+4533123456" class="bg-gray-100 py-3 rounded text-center text-gray-700 font-bold">
+                        Embassy
+                    </a>
+                </div>
+            </div>
+
+            <!-- Budget -->
+            <div class="card p-5">
+                <h3 class="text-lg font-bold text-[#2C3E50] mb-4 serif-font">Expenses</h3>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" x-model="newExpenseName" placeholder="Item" class="w-1/2 p-2 border-b border-gray-300 bg-transparent text-sm focus:outline-none focus:border-[#2C3E50]">
+                    <input type="number" x-model="newExpenseAmount" placeholder="$" class="w-1/3 p-2 border-b border-gray-300 bg-transparent text-sm focus:outline-none focus:border-[#2C3E50]">
+                    <button @click="addExpense" class="text-[#2C3E50] text-xl font-bold w-10">+</button>
+                </div>
+                <div class="space-y-2">
+                    <template x-for="(exp, i) in expenses" :key="i">
+                        <div class="flex justify-between text-sm border-b border-dashed border-gray-200 pb-1">
+                            <span x-text="exp.name"></span>
+                            <span class="font-mono text-[#D35400]" x-text="exp.amount"></span>
+                        </div>
+                    </template>
+                </div>
+                <div class="mt-4 pt-2 border-t border-gray-300 flex justify-between font-bold text-lg text-[#2C3E50]">
+                    <span>Total</span>
+                    <span x-text="totalExpense"></span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Navigation: 浮動式設計 -->
+    <nav class="fixed bottom-6 left-6 right-6 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 z-50 p-1">
+        <div class="flex justify-around items-center py-2">
+            <button @click="activeTab = 'itinerary'" class="flex items-center space-x-2 px-6 py-2 rounded-xl transition-all" 
+                :class="activeTab === 'itinerary' ? 'bg-[#2C3E50] text-white shadow-md' : 'text-gray-400'">
+                <span class="text-lg">🗺</span>
+                <span class="text-xs font-bold uppercase tracking-wider" x-show="activeTab === 'itinerary'">Journey</span>
+            </button>
+            <button @click="activeTab = 'tools'" class="flex items-center space-x-2 px-6 py-2 rounded-xl transition-all" 
+                :class="activeTab === 'tools' ? 'bg-[#2C3E50] text-white shadow-md' : 'text-gray-400'">
+                <span class="text-lg">🧳</span>
+                <span class="text-xs font-bold uppercase tracking-wider" x-show="activeTab === 'tools'">Tools</span>
+            </button>
+        </div>
+    </nav>
+
+    <script>
+        function tripApp() {
+            return {
+                activeTab: 'itinerary',
+                activeDayIndex: 0,
+                newExpenseName: '',
+                newExpenseAmount: '',
+                expenses: [],
+                
+                // Itinerary Data
+                itinerary: [
+                    { day: 1, date: "May 17", shortDateOnly: "17", weekday: "SUN", location: "In Flight", title: "Departure to Copenhagen", weatherIcon: "✈️", temp: "-", hotel: "Malmö, Sweden", items: [
+                        { time: "16:10", type: "transport", name: "Depart TPE", desc: "Flight to Copenhagen (CPH)", tips: "Long haul flight. Stay hydrated." },
+                        { time: "Evening", type: "transport", name: "Train to Malmö", desc: "Öresundståg Train", tips: "Crossing the famous Öresund Bridge." }
+                    ]},
+                    { day: 2, date: "May 18", shortDateOnly: "18", weekday: "MON", location: "Malmö", title: "Arrival & Rest", weatherIcon: "🌥️", temp: "13°C", hotel: "Malmö", items: [
+                        { time: "07:00", type: "transport", name: "Arrive CPH Airport", desc: "Transfer to Malmö" },
+                        { time: "All Day", type: "rest", name: "Rest Day", desc: "Recovering from jet lag", tips: "Lilla Torg square is great for a relaxing coffee." }
+                    ]},
+                    { day: 3, date: "May 19", shortDateOnly: "19", weekday: "TUE", location: "Iceland", title: "Flight to Reykjavik", weatherIcon: "🌬️", temp: "8°C", hotel: "Reykjavik", items: [
+                        { time: "AM/PM", type: "transport", name: "Flight to KEF", desc: "CPH -> Keflavik Airport" },
+                        { time: "Evening", type: "spot", name: "Arrive Reykjavik", desc: "Hotel Check-in", tips: "Try the famous Bæjarins Beztu Pylsur hot dog stand near the harbor." }
+                    ]},
+                    { day: 4, date: "May 20", shortDateOnly: "20", weekday: "WED", location: "Iceland", title: "Golden Circle Tour", weatherIcon: "🌧️", temp: "7°C", hotel: "Reykjavik", items: [
+                        { time: "Morning", type: "spot", name: "Þingvellir National Park", desc: "Tectonic plates meeting point", tips: "Walk between North America and Europe." },
+                        { time: "Noon", type: "spot", name: "Geysir", desc: "Geothermal Area", tips: "Strokkur geyser erupts every 6-10 minutes." },
+                        { time: "Afternoon", type: "spot", name: "Gullfoss Waterfall", desc: "The Golden Falls", tips: "Expect to get wet from the spray." },
+                        { time: "Bonus", type: "spot", name: "Kerið Crater", desc: "Volcanic Crater Lake", tips: "Stunning contrast of red rock and azure water." }
+                    ]},
+                    { day: 5, date: "May 21", shortDateOnly: "21", weekday: "THU", location: "Iceland", title: "Blue Lagoon & City", weatherIcon: "🌤️", temp: "9°C", hotel: "Fly back at 1AM", items: [
+                        { time: "Morning", type: "spot", name: "Reykjavik City", desc: "Hallgrímskirkja & Sun Voyager", tips: "Great view from the church tower." },
+                        { time: "Afternoon", type: "spot", name: "Blue Lagoon", desc: "Geothermal Spa", tips: "Pre-booking is mandatory. Put conditioner in hair before entering to protect from silica." },
+                        { time: "01:00", type: "transport", name: "Flight Back", desc: "Return to Copenhagen/Malmö" }
+                    ]},
+                    { day: 6, date: "May 22", shortDateOnly: "22", weekday: "FRI", location: "Malmö", title: "Rest Day", weatherIcon: "☁️", temp: "14°C", hotel: "Malmö", items: [
+                        { time: "All Day", type: "rest", name: "Rest in Malmö", desc: "Easy day" }
+                    ]},
+                    { day: 7, date: "May 23", shortDateOnly: "23", weekday: "SAT", location: "Copenhagen", title: "Denmark Day Trip", weatherIcon: "☀️", temp: "16°C", hotel: "Malmö", items: [
+                        { time: "Morning", type: "transport", name: "Train to CPH", desc: "35 mins ride" },
+                        { time: "Day", type: "spot", name: "Tivoli Gardens", desc: "& The Little Mermaid", tips: "Nyhavn (New Harbor) is the iconic photo spot." },
+                        { time: "Must Eat", type: "food", name: "Smørrebrød", desc: "Open-faced sandwich", tips: "Restaurant Schønnemann is a classic choice." },
+                        { time: "Evening", type: "transport", name: "Back to Malmö", desc: "" }
+                    ]},
+                    { day: 8, date: "May 24", shortDateOnly: "24", weekday: "SUN", location: "Malmö", title: "Family / Religious", weatherIcon: "☁️", temp: "15°C", hotel: "Malmö", items: [
+                        { time: "All Day", type: "spot", name: "Worship / Visit", desc: "Personal itinerary" }
+                    ]},
+                    { day: 9, date: "May 25", shortDateOnly: "25", weekday: "MON", location: "Stockholm", title: "To Stockholm", weatherIcon: "🌤️", temp: "14°C", hotel: "Stockholm", items: [
+                        { time: "Morning", type: "transport", name: "Bus to Stockholm", desc: "8 hours journey", tips: "Stock up on snacks." },
+                        { time: "Evening", type: "spot", name: "City Center", desc: "Shopping & Dinner", tips: "Drottninggatan is the main pedestrian street." }
+                    ]},
+                    { day: 10, date: "May 26", shortDateOnly: "26", weekday: "TUE", location: "Cruise", title: "To Helsinki", weatherIcon: "🚢", temp: "12°C", hotel: "On Board Cruise", items: [
+                        { time: "15:00", type: "transport", name: "Board Cruise", desc: "Viking / Silja Line", tips: "Enjoy the archipelago views upon departure." },
+                        { time: "17:00", type: "transport", name: "Departure", desc: "Overnight to Finland", tips: "Duty-free shopping available on board." }
+                    ]},
+                    { day: 11, date: "May 27", shortDateOnly: "27", weekday: "WED", location: "Helsinki", title: "Finland Day Trip", weatherIcon: "🌤️", temp: "13°C", hotel: "Stockholm", items: [
+                        { time: "10:00", type: "transport", name: "Arrive Helsinki", desc: "City Tour", tips: "Helsinki Cathedral (White Church) and Rock Church (Temppeliaukio)." },
+                        { time: "15:00", type: "transport", name: "Cruise Back", desc: "Return to Stockholm" }
+                    ]},
+                    { day: 12, date: "May 28", shortDateOnly: "28", weekday: "THU", location: "Stockholm", title: "Museums", weatherIcon: "☁️", temp: "15°C", hotel: "Stockholm", items: [
+                        { time: "Morning", type: "spot", name: "Vasa Museum", desc: "17th Century Warship", tips: "A must-see. The ship is 98% original." },
+                        { time: "Afternoon", type: "spot", name: "Skansen", desc: "Open Air Museum", tips: "World's oldest open-air museum." },
+                        { time: "Dinner", type: "food", name: "Meatballs", desc: "Swedish Meatballs", tips: "'Meatballs for the People' is highly recommended." }
+                    ]},
+                    { day: 13, date: "May 29", shortDateOnly: "29", weekday: "FRI", location: "Malmö", title: "Return South", weatherIcon: "✈️", temp: "16°C", hotel: "Malmö", items: [
+                        { time: "Noon", type: "transport", name: "Flight to Malmö", desc: "From Arlanda (ARN)" },
+                        { time: "PM", type: "rest", name: "Rest", desc: "Relax in Malmö" }
+                    ]},
+                    { day: 14, date: "May 30", shortDateOnly: "30", weekday: "SAT", location: "Gothenburg", title: "Gothenburg Trip", weatherIcon: "☀️", temp: "17°C", hotel: "Malmö", items: [
+                        { time: "All Day", type: "spot", name: "Gothenburg", desc: "Day return trip", tips: "Visit 'Feskekörka' (Fish Church) for seafood." }
+                    ]},
+                    { day: 15, date: "May 31", shortDateOnly: "31", weekday: "SUN", location: "Malmö", title: "Rest Day", weatherIcon: "☁️", temp: "16°C", hotel: "Malmö", items: [
+                         { time: "All Day", type: "rest", name: "Rest", desc: "" }
+                    ]},
+                    { day: 16, date: "June 1", shortDateOnly: "1", weekday: "MON", location: "Älmhult", title: "IKEA HQ", weatherIcon: "🛋️", temp: "18°C", hotel: "Malmö", items: [
+                        { time: "All Day", type: "spot", name: "IKEA Museum", desc: "The Heart of IKEA", tips: "Try the original meatballs at the museum restaurant." }
+                    ]},
+                    { day: 17, date: "June 2", shortDateOnly: "2", weekday: "TUE", location: "Airport", title: "Farewell Brother", weatherIcon: "✈️", temp: "18°C", hotel: "Malmö", items: [
+                        { time: "11:55", type: "transport", name: "Brother Departs", desc: "CPH -> TPE" }
+                    ]},
+                    { day: 18, date: "June 3", shortDateOnly: "3", weekday: "WED", location: "Malmö", title: "Family Time", weatherIcon: "☕", temp: "19°C", hotel: "Malmö", items: [
+                        { time: "All Day", type: "spot", name: "Visiting Friends", desc: "With Mom" }
+                    ]},
+                    { day: 19, date: "June 4", shortDateOnly: "4", weekday: "THU", location: "Hamburg", title: "Germany Day Trip", weatherIcon: "🚄", temp: "20°C", hotel: "Malmö", items: [
+                        { time: "Morning", type: "transport", name: "Train to Hamburg", desc: "Cross border to Germany", tips: "Bring Passport!" },
+                        { time: "Spot", type: "spot", name: "Miniatur Wunderland", desc: "Model Railway", tips: "Largest in the world. Incredible detail." }
+                    ]},
+                    { day: 20, date: "June 5", shortDateOnly: "5", weekday: "FRI", location: "Malmö", title: "Shopping", weatherIcon: "🛍️", temp: "18°C", hotel: "Malmö", items: [
+                        { time: "All Day", type: "spot", name: "Souvenirs", desc: "Packing", tips: "Buy Kalles Kaviar, Marabou chocolate." }
+                    ]},
+                    { day: 21, date: "June 6", shortDateOnly: "6", weekday: "SAT", location: "Home", title: "Departure", weatherIcon: "✈️", temp: "-", hotel: "Plane", items: [
+                        { time: "11:55", type: "transport", name: "Fly Home", desc: "CPH -> TPE" }
+                    ]},
+                    { day: 22, date: "June 7", shortDateOnly: "7", weekday: "SUN", location: "Taipei", title: "Welcome Home", weatherIcon: "🏠", temp: "30°C", hotel: "Home", items: [
+                        { time: "16:40", type: "transport", name: "Land in Taipei", desc: "End of Journey" }
+                    ]}
+                ],
+
+                get activeDay() {
+                    return this.itinerary[this.activeDayIndex];
+                },
+                
+                get currentDateDisplay() {
+                    return this.activeDay.date;
+                },
+
+                get currentDayNum() {
+                    return this.activeDay.day;
+                },
+
+                get totalExpense() {
+                    const total = this.expenses.reduce((sum, item) => sum + Number(item.amount), 0);
+                    return total > 0 ? total : 0;
+                },
+
+                scrollToDay(index) {
+                    this.activeDayIndex = index;
+                },
+
+                getTypeColor(type) {
+                    if (type === 'food') return 'bg-[#D35400]';
+                    if (type === 'spot') return 'bg-[#2980B9]';
+                    if (type === 'transport') return 'bg-[#566573]';
+                    if (type === 'rest') return 'bg-[#27AE60]';
+                    return 'bg-gray-400';
+                },
+                
+                getTypeTagClass(type) {
+                     if (type === 'food') return 'tag-food';
+                    if (type === 'spot') return 'tag-spot';
+                    if (type === 'transport') return 'tag-trans';
+                    if (type === 'rest') return 'tag-rest';
+                    return '';
+                },
+                
+                getTypeLabel(type) {
+                     if (type === 'food') return 'DINING';
+                    if (type === 'spot') return 'SIGHTS';
+                    if (type === 'transport') return 'TRAVEL';
+                    if (type === 'rest') return 'RELAX';
+                    return 'INFO';
+                },
+
+                openMap(location, city) {
+                    const query = encodeURIComponent(`${location} ${city}`);
+                    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+                },
+
+                addExpense() {
+                    if (this.newExpenseName && this.newExpenseAmount) {
+                        this.expenses.push({
+                            name: this.newExpenseName,
+                            amount: this.newExpenseAmount
+                        });
+                        this.newExpenseName = '';
+                        this.newExpenseAmount = '';
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
