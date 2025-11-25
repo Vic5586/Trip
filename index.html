@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nordic Journey</title>
+    <title>北歐行旅 Nordic Journey</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.12.0/cdn.min.js" defer></script>
-    <!-- 引入歐式襯線體 (Playfair Display) 與 易讀內文 (Lato) -->
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- 引入歐式襯線體 (Playfair Display) 用於裝飾數字與英文，內文使用黑體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-cream: #F9F7F2;
@@ -18,12 +18,12 @@
             --text-main: #34495E;
         }
         body {
-            font-family: 'Lato', sans-serif;
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", sans-serif;
             background-color: var(--bg-cream);
             color: var(--text-main);
             -webkit-tap-highlight-color: transparent;
         }
-        h1, h2, h3, .serif-font {
+        .serif-font {
             font-family: 'Playfair Display', serif;
         }
         /* 卡片懸浮效果 */
@@ -46,20 +46,12 @@
             scrollbar-width: none;
         }
         /* 自定義標籤顏色 (莫蘭迪色系) */
-        .tag { padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+        .tag { padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; }
         .tag-food { background-color: #FAE5D3; color: #D35400; } /* 溫暖陶色 */
         .tag-spot { background-color: #D6EAF8; color: #2980B9; } /* 柔和藍 */
         .tag-trans { background-color: #EAECEE; color: #566573; } /* 質感灰 */
         .tag-rest { background-color: #D5F5E3; color: #27AE60; } /* 鼠尾草綠 */
         
-        /* 導航按鈕樣式 */
-        .nav-btn-active {
-            color: var(--deep-navy);
-            font-weight: bold;
-        }
-        .nav-btn-inactive {
-            color: #95A5A6;
-        }
     </style>
 </head>
 <body x-data="tripApp()">
@@ -68,12 +60,12 @@
     <header class="fixed top-0 w-full bg-[#2C3E50] text-[#F9F7F2] z-50 shadow-md pt-12 pb-6 px-6 rounded-b-[24px]">
         <div class="flex justify-between items-end max-w-md mx-auto">
             <div>
-                <p class="text-[10px] tracking-[0.2em] uppercase opacity-80 mb-1">Travel Itinerary</p>
-                <h1 class="text-3xl font-bold serif-font tracking-wide">Nordic <br>Holidays</h1>
+                <p class="text-[10px] tracking-[0.2em] uppercase opacity-80 mb-1 font-bold">Nordic Trip 2025</p>
+                <h1 class="text-3xl font-bold tracking-wide">北歐行旅</h1>
             </div>
             <div class="text-right">
                 <div class="text-xl serif-font italic" x-text="currentDateDisplay"></div>
-                <div class="text-xs opacity-70 uppercase tracking-widest mt-1">Day <span x-text="currentDayNum"></span></div>
+                <div class="text-xs opacity-70 uppercase tracking-widest mt-1">Day <span x-text="currentDayNum" class="serif-font text-lg"></span></div>
             </div>
         </div>
     </header>
@@ -90,7 +82,7 @@
                     <button @click="scrollToDay(index)" 
                             :class="{'bg-[#D35400] text-white shadow-lg transform -translate-y-1': activeDayIndex === index, 'bg-white text-[#566573] border border-[#EAECEE]': activeDayIndex !== index}"
                             class="flex-shrink-0 w-12 h-14 rounded-xl flex flex-col items-center justify-center transition-all duration-300 snap-center">
-                        <span class="text-[10px] uppercase font-bold tracking-wider" x-text="day.weekday"></span>
+                        <span class="text-[10px] font-bold tracking-wider" x-text="day.weekday"></span>
                         <span class="text-lg serif-font font-bold" x-text="day.shortDateOnly"></span>
                     </button>
                 </template>
@@ -102,13 +94,13 @@
                 <div class="bg-[#ECF0F1] h-24 p-5 flex justify-between items-start relative">
                     <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#2C3E50 1px, transparent 1px); background-size: 10px 10px;"></div>
                     <div class="z-10">
-                        <h2 class="text-2xl font-bold text-[#2C3E50] serif-font" x-text="activeDay.location"></h2>
-                        <p class="text-sm text-[#7F8C8D] mt-1 italic serif-font" x-text="activeDay.title"></p>
+                        <h2 class="text-2xl font-bold text-[#2C3E50]" x-text="activeDay.location"></h2>
+                        <p class="text-sm text-[#7F8C8D] mt-1 font-medium" x-text="activeDay.title"></p>
                     </div>
                     <!-- Weather Stamp -->
                     <div class="z-10 bg-white/80 backdrop-blur-sm px-3 py-2 rounded-lg border border-gray-200 shadow-sm flex flex-col items-center">
                         <span class="text-2xl" x-text="activeDay.weatherIcon"></span>
-                        <span class="text-xs font-bold text-[#2C3E50]" x-text="activeDay.temp"></span>
+                        <span class="text-xs font-bold text-[#2C3E50] serif-font" x-text="activeDay.temp"></span>
                     </div>
                 </div>
 
@@ -126,7 +118,7 @@
                                 
                                 <div>
                                     <div class="flex items-center gap-2 mb-1">
-                                        <span class="text-xs font-bold text-[#D35400] tracking-wide" x-text="item.time"></span>
+                                        <span class="text-xs font-bold text-[#D35400] tracking-wide serif-font" x-text="item.time"></span>
                                         <span class="tag" :class="getTypeTagClass(item.type)" x-text="getTypeLabel(item.type)"></span>
                                     </div>
                                     <h3 class="text-lg font-bold text-[#2C3E50] leading-tight" x-html="item.name"></h3>
@@ -135,8 +127,8 @@
                                     <!-- AI Tips: Note style -->
                                     <template x-if="item.tips">
                                         <div class="mt-3 bg-[#FEF9E7] p-3 rounded-lg border-l-4 border-[#F1C40F]">
-                                            <p class="text-xs text-[#7D6608] font-bold uppercase tracking-wider mb-1">Travel Tip</p>
-                                            <p class="text-xs text-[#566573] italic" x-html="item.tips"></p>
+                                            <p class="text-xs text-[#7D6608] font-bold mb-1">💡 導遊筆記</p>
+                                            <p class="text-xs text-[#566573]" x-html="item.tips"></p>
                                         </div>
                                     </template>
                                 </div>
@@ -144,8 +136,8 @@
                                 <!-- Buttons: Outline style -->
                                 <div class="flex gap-3 mt-4">
                                     <button @click="openMap(item.name, activeDay.location)" 
-                                            class="flex-1 text-xs border border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white px-3 py-2 rounded font-bold uppercase tracking-wider transition-colors">
-                                        Google Map
+                                            class="flex-1 text-xs border border-[#2C3E50] text-[#2C3E50] hover:bg-[#2C3E50] hover:text-white px-3 py-2 rounded font-bold transition-colors">
+                                        📍 導航
                                     </button>
                                 </div>
                             </div>
@@ -158,8 +150,8 @@
                     <div class="flex items-center gap-3">
                         <div class="text-[#2C3E50] text-xl">🛏</div>
                         <div>
-                            <p class="text-[10px] text-[#95A5A6] uppercase tracking-widest">Accommodation</p>
-                            <p class="text-sm font-bold text-[#2C3E50] serif-font" x-text="activeDay.hotel"></p>
+                            <p class="text-[10px] text-[#95A5A6] uppercase tracking-widest font-bold">住宿地點</p>
+                            <p class="text-sm font-bold text-[#2C3E50]" x-text="activeDay.hotel"></p>
                         </div>
                     </div>
                 </div>
@@ -168,55 +160,58 @@
 
         <!-- Tab: Tools -->
         <div x-show="activeTab === 'tools'" class="space-y-6">
-            <h2 class="text-3xl font-bold text-[#2C3E50] serif-font mb-6">Travel Tools</h2>
+            <h2 class="text-3xl font-bold text-[#2C3E50] mb-6">旅行工具箱</h2>
 
             <!-- Flight Ticket Style -->
             <div class="card p-0 relative overflow-hidden">
                 <div class="bg-[#2C3E50] h-3"></div> <!-- Blue top bar -->
                 <div class="p-5">
-                    <h3 class="text-lg font-bold text-[#2C3E50] mb-4 flex items-center gap-2 serif-font">
-                        <span>✈️</span> Flight Information
+                    <h3 class="text-lg font-bold text-[#2C3E50] mb-4 flex items-center gap-2">
+                        <span>✈️</span> 航班資訊
                     </h3>
                     <div class="space-y-4">
+                        <!-- Flight 1 -->
                         <div class="border-b border-dashed border-gray-300 pb-4">
                             <div class="flex justify-between items-end">
                                 <div>
-                                    <div class="text-3xl font-black text-[#2C3E50]">TPE</div>
-                                    <div class="text-xs text-gray-400">Taipei</div>
+                                    <div class="text-3xl font-black text-[#2C3E50] serif-font">TPE</div>
+                                    <div class="text-xs text-gray-400">台北</div>
                                 </div>
-                                <div class="text-gray-300">✈</div>
+                                <div class="text-gray-300 transform rotate-90 sm:rotate-0">✈</div>
                                 <div class="text-right">
-                                    <div class="text-3xl font-black text-[#2C3E50]">CPH</div>
-                                    <div class="text-xs text-gray-400">Copenhagen</div>
+                                    <div class="text-3xl font-black text-[#2C3E50] serif-font">CPH</div>
+                                    <div class="text-xs text-gray-400">哥本哈根</div>
                                 </div>
                             </div>
                             <div class="mt-2 flex justify-between text-sm font-bold text-[#D35400]">
-                                <span>5/17</span>
-                                <span>16:10</span>
+                                <span class="serif-font">5/17</span>
+                                <span class="serif-font">16:10</span>
                             </div>
                         </div>
                         
+                        <!-- Flight 2 -->
                         <div class="border-b border-dashed border-gray-300 pb-4">
                              <div class="flex justify-between items-end">
-                                <div><span class="text-xl font-bold text-[#2C3E50]">CPH</span></div>
-                                <div class="text-xs text-gray-500">Brother's Return</div>
-                                <div><span class="text-xl font-bold text-[#2C3E50]">TPE</span></div>
+                                <div><span class="text-xl font-bold text-[#2C3E50] serif-font">CPH</span></div>
+                                <div class="text-xs text-gray-500">弟弟回程</div>
+                                <div><span class="text-xl font-bold text-[#2C3E50] serif-font">TPE</span></div>
                             </div>
                              <div class="mt-1 flex justify-between text-xs font-bold text-[#D35400]">
-                                <span>6/2</span>
-                                <span>11:55</span>
+                                <span class="serif-font">6/2</span>
+                                <span class="serif-font">11:55</span>
                             </div>
                         </div>
 
+                        <!-- Flight 3 -->
                          <div>
                              <div class="flex justify-between items-end">
-                                <div><span class="text-xl font-bold text-[#2C3E50]">CPH</span></div>
-                                <div class="text-xs text-gray-500">My Return</div>
-                                <div><span class="text-xl font-bold text-[#2C3E50]">TPE</span></div>
+                                <div><span class="text-xl font-bold text-[#2C3E50] serif-font">CPH</span></div>
+                                <div class="text-xs text-gray-500">我們回程</div>
+                                <div><span class="text-xl font-bold text-[#2C3E50] serif-font">TPE</span></div>
                             </div>
                              <div class="mt-1 flex justify-between text-xs font-bold text-[#D35400]">
-                                <span>6/6</span>
-                                <span>11:55</span>
+                                <span class="serif-font">6/6</span>
+                                <span class="serif-font">11:55</span>
                             </div>
                         </div>
                     </div>
@@ -225,36 +220,38 @@
 
             <!-- Emergency Card -->
             <div class="card p-5 border-l-4 border-[#C0392B]">
-                <h3 class="text-lg font-bold text-[#C0392B] mb-4 serif-font">Emergency</h3>
+                <h3 class="text-lg font-bold text-[#C0392B] mb-4">緊急聯絡電話</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <a href="tel:112" class="bg-[#F2D7D5] py-3 rounded text-center text-[#C0392B] font-bold">
+                        <span class="block text-xs opacity-70">歐盟通用</span>
                         SOS 112
                     </a>
                     <a href="tel:+4533123456" class="bg-gray-100 py-3 rounded text-center text-gray-700 font-bold">
-                        Embassy
+                        <span class="block text-xs opacity-70">外交部緊急</span>
+                        駐丹麥處
                     </a>
                 </div>
             </div>
 
             <!-- Budget -->
             <div class="card p-5">
-                <h3 class="text-lg font-bold text-[#2C3E50] mb-4 serif-font">Expenses</h3>
+                <h3 class="text-lg font-bold text-[#2C3E50] mb-4">旅費記帳</h3>
                 <div class="flex gap-2 mb-4">
-                    <input type="text" x-model="newExpenseName" placeholder="Item" class="w-1/2 p-2 border-b border-gray-300 bg-transparent text-sm focus:outline-none focus:border-[#2C3E50]">
-                    <input type="number" x-model="newExpenseAmount" placeholder="$" class="w-1/3 p-2 border-b border-gray-300 bg-transparent text-sm focus:outline-none focus:border-[#2C3E50]">
+                    <input type="text" x-model="newExpenseName" placeholder="項目" class="w-1/2 p-2 border-b border-gray-300 bg-transparent text-sm focus:outline-none focus:border-[#2C3E50]">
+                    <input type="number" x-model="newExpenseAmount" placeholder="金額" class="w-1/3 p-2 border-b border-gray-300 bg-transparent text-sm focus:outline-none focus:border-[#2C3E50]">
                     <button @click="addExpense" class="text-[#2C3E50] text-xl font-bold w-10">+</button>
                 </div>
                 <div class="space-y-2">
                     <template x-for="(exp, i) in expenses" :key="i">
                         <div class="flex justify-between text-sm border-b border-dashed border-gray-200 pb-1">
                             <span x-text="exp.name"></span>
-                            <span class="font-mono text-[#D35400]" x-text="exp.amount"></span>
+                            <span class="font-mono text-[#D35400] serif-font" x-text="exp.amount"></span>
                         </div>
                     </template>
                 </div>
                 <div class="mt-4 pt-2 border-t border-gray-300 flex justify-between font-bold text-lg text-[#2C3E50]">
-                    <span>Total</span>
-                    <span x-text="totalExpense"></span>
+                    <span>總計 (Total)</span>
+                    <span x-text="totalExpense" class="serif-font"></span>
                 </div>
             </div>
         </div>
@@ -267,12 +264,12 @@
             <button @click="activeTab = 'itinerary'" class="flex items-center space-x-2 px-6 py-2 rounded-xl transition-all" 
                 :class="activeTab === 'itinerary' ? 'bg-[#2C3E50] text-white shadow-md' : 'text-gray-400'">
                 <span class="text-lg">🗺</span>
-                <span class="text-xs font-bold uppercase tracking-wider" x-show="activeTab === 'itinerary'">Journey</span>
+                <span class="text-xs font-bold tracking-wider" x-show="activeTab === 'itinerary'">每日行程</span>
             </button>
             <button @click="activeTab = 'tools'" class="flex items-center space-x-2 px-6 py-2 rounded-xl transition-all" 
                 :class="activeTab === 'tools' ? 'bg-[#2C3E50] text-white shadow-md' : 'text-gray-400'">
                 <span class="text-lg">🧳</span>
-                <span class="text-xs font-bold uppercase tracking-wider" x-show="activeTab === 'tools'">Tools</span>
+                <span class="text-xs font-bold tracking-wider" x-show="activeTab === 'tools'">工具箱</span>
             </button>
         </div>
     </nav>
@@ -286,91 +283,91 @@
                 newExpenseAmount: '',
                 expenses: [],
                 
-                // Itinerary Data
+                // 行程資料 (轉為繁體中文)
                 itinerary: [
-                    { day: 1, date: "May 17", shortDateOnly: "17", weekday: "SUN", location: "In Flight", title: "Departure to Copenhagen", weatherIcon: "✈️", temp: "-", hotel: "Malmö, Sweden", items: [
-                        { time: "16:10", type: "transport", name: "Depart TPE", desc: "Flight to Copenhagen (CPH)", tips: "Long haul flight. Stay hydrated." },
-                        { time: "Evening", type: "transport", name: "Train to Malmö", desc: "Öresundståg Train", tips: "Crossing the famous Öresund Bridge." }
+                    { day: 1, date: "5月17日", shortDateOnly: "17", weekday: "週日", location: "飛行中", title: "出發前往哥本哈根", weatherIcon: "✈️", temp: "-", hotel: "瑞典 馬爾默", items: [
+                        { time: "16:10", type: "transport", name: "台北出發", desc: "飛往哥本哈根 (CPH)", tips: "長途飛行請記得攜帶頸枕、保濕用品，並多喝水。" },
+                        { time: "晚間", type: "transport", name: "前往馬爾默", desc: "搭乘火車穿越跨海大橋", tips: "抵達哥本哈根機場後，火車站在機場地下樓層，直達瑞典馬爾默。" }
                     ]},
-                    { day: 2, date: "May 18", shortDateOnly: "18", weekday: "MON", location: "Malmö", title: "Arrival & Rest", weatherIcon: "🌥️", temp: "13°C", hotel: "Malmö", items: [
-                        { time: "07:00", type: "transport", name: "Arrive CPH Airport", desc: "Transfer to Malmö" },
-                        { time: "All Day", type: "rest", name: "Rest Day", desc: "Recovering from jet lag", tips: "Lilla Torg square is great for a relaxing coffee." }
+                    { day: 2, date: "5月18日", shortDateOnly: "18", weekday: "週一", location: "馬爾默", title: "抵達與休息", weatherIcon: "🌥️", temp: "13°C", hotel: "馬爾默", items: [
+                        { time: "07:00", type: "transport", name: "抵達哥本哈根機場", desc: "前往馬爾默休息" },
+                        { time: "全天", type: "rest", name: "馬爾默休息", desc: "調整時差", tips: "推薦到市中心的 Lilla Torg 小廣場喝杯咖啡，感受瑞典悠閒氣氛。" }
                     ]},
-                    { day: 3, date: "May 19", shortDateOnly: "19", weekday: "TUE", location: "Iceland", title: "Flight to Reykjavik", weatherIcon: "🌬️", temp: "8°C", hotel: "Reykjavik", items: [
-                        { time: "AM/PM", type: "transport", name: "Flight to KEF", desc: "CPH -> Keflavik Airport" },
-                        { time: "Evening", type: "spot", name: "Arrive Reykjavik", desc: "Hotel Check-in", tips: "Try the famous Bæjarins Beztu Pylsur hot dog stand near the harbor." }
+                    { day: 3, date: "5月19日", shortDateOnly: "19", weekday: "週二", location: "冰島", title: "飛往冰島雷克雅維克", weatherIcon: "🌬️", temp: "8°C", hotel: "雷克雅維克", items: [
+                        { time: "上午", type: "transport", name: "前往機場", desc: "哥本哈根 -> 凱夫拉維克 (KEF)" },
+                        { time: "晚上", type: "spot", name: "抵達雷克雅維克", desc: "飯店入住", tips: "機場到市區約45分鐘。推薦嘗試港口邊著名的 Bæjarins Beztu Pylsur 熱狗堡。" }
                     ]},
-                    { day: 4, date: "May 20", shortDateOnly: "20", weekday: "WED", location: "Iceland", title: "Golden Circle Tour", weatherIcon: "🌧️", temp: "7°C", hotel: "Reykjavik", items: [
-                        { time: "Morning", type: "spot", name: "Þingvellir National Park", desc: "Tectonic plates meeting point", tips: "Walk between North America and Europe." },
-                        { time: "Noon", type: "spot", name: "Geysir", desc: "Geothermal Area", tips: "Strokkur geyser erupts every 6-10 minutes." },
-                        { time: "Afternoon", type: "spot", name: "Gullfoss Waterfall", desc: "The Golden Falls", tips: "Expect to get wet from the spray." },
-                        { time: "Bonus", type: "spot", name: "Kerið Crater", desc: "Volcanic Crater Lake", tips: "Stunning contrast of red rock and azure water." }
+                    { day: 4, date: "5月20日", shortDateOnly: "20", weekday: "週三", location: "冰島", title: "黃金圈一日遊", weatherIcon: "🌧️", temp: "7°C", hotel: "雷克雅維克", items: [
+                        { time: "上午", type: "spot", name: "辛格維利爾國家公園", desc: "Þingvellir", tips: "權力遊戲拍攝地，也是歐美板塊的交界處，景色壯觀。" },
+                        { time: "中午", type: "spot", name: "Geysir 間歇泉", desc: "地熱區", tips: "Strokkur 間歇泉每 5-10 分鐘噴發一次，請站在上風處以免淋濕。" },
+                        { time: "下午", type: "spot", name: "Gullfoss 黃金瀑布", desc: "雙層巨大瀑布", tips: "水量巨大，建議穿著防水外套。" },
+                        { time: "加碼", type: "spot", name: "Kerið 火山口湖", desc: "需門票", tips: "紅色的火山岩與藍綠色的湖水形成強烈對比，拍照極美。" }
                     ]},
-                    { day: 5, date: "May 21", shortDateOnly: "21", weekday: "THU", location: "Iceland", title: "Blue Lagoon & City", weatherIcon: "🌤️", temp: "9°C", hotel: "Fly back at 1AM", items: [
-                        { time: "Morning", type: "spot", name: "Reykjavik City", desc: "Hallgrímskirkja & Sun Voyager", tips: "Great view from the church tower." },
-                        { time: "Afternoon", type: "spot", name: "Blue Lagoon", desc: "Geothermal Spa", tips: "Pre-booking is mandatory. Put conditioner in hair before entering to protect from silica." },
-                        { time: "01:00", type: "transport", name: "Flight Back", desc: "Return to Copenhagen/Malmö" }
+                    { day: 5, date: "5月21日", shortDateOnly: "21", weekday: "週四", location: "冰島", title: "藍湖溫泉與市區", weatherIcon: "🌤️", temp: "9°C", hotel: "5/22 凌晨搭機", items: [
+                        { time: "上午", type: "spot", name: "雷克雅維克市區", desc: "哈爾格林姆教堂、太陽航行者", tips: "教堂頂樓可搭電梯俯瞰市區全景（需購票）。" },
+                        { time: "下午", type: "spot", name: "藍湖溫泉 (Blue Lagoon)", desc: "夢幻地熱溫泉", tips: "務必提前預約！下水前頭髮要抹潤髮乳以免乾澀，溫泉泥面膜必敷。" },
+                        { time: "01:00", type: "transport", name: "前往機場", desc: "飛回哥本哈根/馬爾默" }
                     ]},
-                    { day: 6, date: "May 22", shortDateOnly: "22", weekday: "FRI", location: "Malmö", title: "Rest Day", weatherIcon: "☁️", temp: "14°C", hotel: "Malmö", items: [
-                        { time: "All Day", type: "rest", name: "Rest in Malmö", desc: "Easy day" }
+                    { day: 6, date: "5月22日", shortDateOnly: "22", weekday: "週五", location: "馬爾默", title: "補眠日", weatherIcon: "☁️", temp: "14°C", hotel: "馬爾默", items: [
+                        { time: "全天", type: "rest", name: "馬爾默休息", desc: "放鬆行程" }
                     ]},
-                    { day: 7, date: "May 23", shortDateOnly: "23", weekday: "SAT", location: "Copenhagen", title: "Denmark Day Trip", weatherIcon: "☀️", temp: "16°C", hotel: "Malmö", items: [
-                        { time: "Morning", type: "transport", name: "Train to CPH", desc: "35 mins ride" },
-                        { time: "Day", type: "spot", name: "Tivoli Gardens", desc: "& The Little Mermaid", tips: "Nyhavn (New Harbor) is the iconic photo spot." },
-                        { time: "Must Eat", type: "food", name: "Smørrebrød", desc: "Open-faced sandwich", tips: "Restaurant Schønnemann is a classic choice." },
-                        { time: "Evening", type: "transport", name: "Back to Malmö", desc: "" }
+                    { day: 7, date: "5月23日", shortDateOnly: "23", weekday: "週六", location: "哥本哈根", title: "丹麥一日遊", weatherIcon: "☀️", temp: "16°C", hotel: "馬爾默", items: [
+                        { time: "上午", type: "transport", name: "前往哥本哈根", desc: "火車約35分鐘" },
+                        { time: "全天", type: "spot", name: "Tivoli 遊樂園 & 美人魚", desc: "市區觀光", tips: "新港 (Nyhavn) 的彩色屋是必拍景點。Tivoli 是世界最古老遊樂園之一。" },
+                        { time: "必吃", type: "food", name: "開放式三明治", desc: "Smørrebrød", tips: "推薦餐廳：Aamanns 或 Schønnemann，是丹麥經典午餐。" },
+                        { time: "傍晚", type: "transport", name: "返回馬爾默", desc: "" }
                     ]},
-                    { day: 8, date: "May 24", shortDateOnly: "24", weekday: "SUN", location: "Malmö", title: "Family / Religious", weatherIcon: "☁️", temp: "15°C", hotel: "Malmö", items: [
-                        { time: "All Day", type: "spot", name: "Worship / Visit", desc: "Personal itinerary" }
+                    { day: 8, date: "5月24日", shortDateOnly: "24", weekday: "週日", location: "馬爾默", title: "拜拜行程", weatherIcon: "☁️", temp: "15°C", hotel: "馬爾默", items: [
+                        { time: "全天", type: "spot", name: "拜拜行程", desc: "依個人安排" }
                     ]},
-                    { day: 9, date: "May 25", shortDateOnly: "25", weekday: "MON", location: "Stockholm", title: "To Stockholm", weatherIcon: "🌤️", temp: "14°C", hotel: "Stockholm", items: [
-                        { time: "Morning", type: "transport", name: "Bus to Stockholm", desc: "8 hours journey", tips: "Stock up on snacks." },
-                        { time: "Evening", type: "spot", name: "City Center", desc: "Shopping & Dinner", tips: "Drottninggatan is the main pedestrian street." }
+                    { day: 9, date: "5月25日", shortDateOnly: "25", weekday: "週一", location: "斯德哥爾摩", title: "移動日", weatherIcon: "🌤️", temp: "14°C", hotel: "斯德哥爾摩", items: [
+                        { time: "早上", type: "transport", name: "搭乘巴士", desc: "前往斯德哥爾摩 (8小時)", tips: "車程較長，建議準備零食與下載離線電影。" },
+                        { time: "晚上", type: "spot", name: "市區逛街", desc: "晚餐", tips: "皇后街 (Drottninggatan) 是主要購物街。" }
                     ]},
-                    { day: 10, date: "May 26", shortDateOnly: "26", weekday: "TUE", location: "Cruise", title: "To Helsinki", weatherIcon: "🚢", temp: "12°C", hotel: "On Board Cruise", items: [
-                        { time: "15:00", type: "transport", name: "Board Cruise", desc: "Viking / Silja Line", tips: "Enjoy the archipelago views upon departure." },
-                        { time: "17:00", type: "transport", name: "Departure", desc: "Overnight to Finland", tips: "Duty-free shopping available on board." }
+                    { day: 10, date: "5月26日", shortDateOnly: "26", weekday: "週二", location: "郵輪", title: "前往赫爾辛基", weatherIcon: "🚢", temp: "12°C", hotel: "郵輪上", items: [
+                        { time: "15:00", type: "transport", name: "前往碼頭", desc: "搭乘 Viking / Silja Line", tips: "開船時的群島風光非常美麗，不要錯過。" },
+                        { time: "17:00", type: "transport", name: "郵輪啟航", desc: "前往芬蘭", tips: "船上有免稅店和自助餐，建議提前預訂海鮮 Buffet。" }
                     ]},
-                    { day: 11, date: "May 27", shortDateOnly: "27", weekday: "WED", location: "Helsinki", title: "Finland Day Trip", weatherIcon: "🌤️", temp: "13°C", hotel: "Stockholm", items: [
-                        { time: "10:00", type: "transport", name: "Arrive Helsinki", desc: "City Tour", tips: "Helsinki Cathedral (White Church) and Rock Church (Temppeliaukio)." },
-                        { time: "15:00", type: "transport", name: "Cruise Back", desc: "Return to Stockholm" }
+                    { day: 11, date: "5月27日", shortDateOnly: "27", weekday: "週三", location: "赫爾辛基", title: "芬蘭快閃", weatherIcon: "🌤️", temp: "13°C", hotel: "斯德哥爾摩", items: [
+                        { time: "10:00", type: "transport", name: "抵達赫爾辛基", desc: "市區觀光", tips: "必去：白教堂、岩石教堂。市集廣場可以喝到好喝的鮭魚湯。" },
+                        { time: "15:00", type: "transport", name: "搭船回程", desc: "返回斯德哥爾摩" }
                     ]},
-                    { day: 12, date: "May 28", shortDateOnly: "28", weekday: "THU", location: "Stockholm", title: "Museums", weatherIcon: "☁️", temp: "15°C", hotel: "Stockholm", items: [
-                        { time: "Morning", type: "spot", name: "Vasa Museum", desc: "17th Century Warship", tips: "A must-see. The ship is 98% original." },
-                        { time: "Afternoon", type: "spot", name: "Skansen", desc: "Open Air Museum", tips: "World's oldest open-air museum." },
-                        { time: "Dinner", type: "food", name: "Meatballs", desc: "Swedish Meatballs", tips: "'Meatballs for the People' is highly recommended." }
+                    { day: 12, date: "5月28日", shortDateOnly: "28", weekday: "週四", location: "斯德哥爾摩", title: "博物館之日", weatherIcon: "☁️", temp: "15°C", hotel: "斯德哥爾摩", items: [
+                        { time: "上午", type: "spot", name: "瓦薩沈船博物館", desc: "Vasa Museum", tips: "保存最完整的17世紀戰艦，非常震撼，必看！" },
+                        { time: "下午", type: "spot", name: "Skansen 戶外博物館", desc: "與動物園", tips: "世界上最早的戶外博物館，展現瑞典傳統生活。" },
+                        { time: "晚餐", type: "food", name: "瑞典肉丸", desc: "Meatballs for the People", tips: "位於 Södermalm 區的名店，口感比 IKEA 好很多。" }
                     ]},
-                    { day: 13, date: "May 29", shortDateOnly: "29", weekday: "FRI", location: "Malmö", title: "Return South", weatherIcon: "✈️", temp: "16°C", hotel: "Malmö", items: [
-                        { time: "Noon", type: "transport", name: "Flight to Malmö", desc: "From Arlanda (ARN)" },
-                        { time: "PM", type: "rest", name: "Rest", desc: "Relax in Malmö" }
+                    { day: 13, date: "5月29日", shortDateOnly: "29", weekday: "週五", location: "馬爾默", title: "返回南部", weatherIcon: "✈️", temp: "16°C", hotel: "馬爾默", items: [
+                        { time: "中午", type: "transport", name: "搭飛機", desc: "ARN 機場 -> 馬爾默" },
+                        { time: "下午", type: "rest", name: "休息", desc: "回到馬爾默" }
                     ]},
-                    { day: 14, date: "May 30", shortDateOnly: "30", weekday: "SAT", location: "Gothenburg", title: "Gothenburg Trip", weatherIcon: "☀️", temp: "17°C", hotel: "Malmö", items: [
-                        { time: "All Day", type: "spot", name: "Gothenburg", desc: "Day return trip", tips: "Visit 'Feskekörka' (Fish Church) for seafood." }
+                    { day: 14, date: "5月30日", shortDateOnly: "30", weekday: "週六", location: "哥特堡", title: "哥特堡一日遊", weatherIcon: "☀️", temp: "17°C", hotel: "馬爾默", items: [
+                        { time: "全天", type: "spot", name: "哥特堡 (Gothenburg)", desc: "當日來回", tips: "瑞典第二大城。推薦去「魚教堂 (Feskekorka)」吃海鮮。" }
                     ]},
-                    { day: 15, date: "May 31", shortDateOnly: "31", weekday: "SUN", location: "Malmö", title: "Rest Day", weatherIcon: "☁️", temp: "16°C", hotel: "Malmö", items: [
-                         { time: "All Day", type: "rest", name: "Rest", desc: "" }
+                    { day: 15, date: "5月31日", shortDateOnly: "31", weekday: "週日", location: "馬爾默", title: "休息日", weatherIcon: "☁️", temp: "16°C", hotel: "馬爾默", items: [
+                         { time: "全天", type: "rest", name: "馬爾默休息", desc: "" }
                     ]},
-                    { day: 16, date: "June 1", shortDateOnly: "1", weekday: "MON", location: "Älmhult", title: "IKEA HQ", weatherIcon: "🛋️", temp: "18°C", hotel: "Malmö", items: [
-                        { time: "All Day", type: "spot", name: "IKEA Museum", desc: "The Heart of IKEA", tips: "Try the original meatballs at the museum restaurant." }
+                    { day: 16, date: "6月1日", shortDateOnly: "1", weekday: "週一", location: "Älmhult", title: "IKEA 總部朝聖", weatherIcon: "🛋️", temp: "18°C", hotel: "馬爾默", items: [
+                        { time: "全天", type: "spot", name: "IKEA Museum", desc: "阿姆胡特一日遊", tips: "這裡是 IKEA 的發源地。博物館餐廳有最道地的瑞典肉丸。" }
                     ]},
-                    { day: 17, date: "June 2", shortDateOnly: "2", weekday: "TUE", location: "Airport", title: "Farewell Brother", weatherIcon: "✈️", temp: "18°C", hotel: "Malmö", items: [
-                        { time: "11:55", type: "transport", name: "Brother Departs", desc: "CPH -> TPE" }
+                    { day: 17, date: "6月2日", shortDateOnly: "2", weekday: "週二", location: "機場", title: "弟弟回程", weatherIcon: "✈️", temp: "18°C", hotel: "馬爾默", items: [
+                        { time: "11:55", type: "transport", name: "弟弟飛機起飛", desc: "CPH -> TPE", tips: "記得預留時間辦理退稅。" }
                     ]},
-                    { day: 18, date: "June 3", shortDateOnly: "3", weekday: "WED", location: "Malmö", title: "Family Time", weatherIcon: "☕", temp: "19°C", hotel: "Malmö", items: [
-                        { time: "All Day", type: "spot", name: "Visiting Friends", desc: "With Mom" }
+                    { day: 18, date: "6月3日", shortDateOnly: "3", weekday: "週三", location: "馬爾默", title: "探親日", weatherIcon: "☕", temp: "19°C", hotel: "馬爾默", items: [
+                        { time: "全天", type: "spot", name: "陪媽媽找朋友", desc: "私人行程" }
                     ]},
-                    { day: 19, date: "June 4", shortDateOnly: "4", weekday: "THU", location: "Hamburg", title: "Germany Day Trip", weatherIcon: "🚄", temp: "20°C", hotel: "Malmö", items: [
-                        { time: "Morning", type: "transport", name: "Train to Hamburg", desc: "Cross border to Germany", tips: "Bring Passport!" },
-                        { time: "Spot", type: "spot", name: "Miniatur Wunderland", desc: "Model Railway", tips: "Largest in the world. Incredible detail." }
+                    { day: 19, date: "6月4日", shortDateOnly: "4", weekday: "週四", location: "漢堡", title: "德國漢堡一日遊", weatherIcon: "🚄", temp: "20°C", hotel: "馬爾默", items: [
+                        { time: "早上", type: "transport", name: "搭火車前往漢堡", desc: "跨國火車", tips: "記得隨身攜帶護照。" },
+                        { time: "下午", type: "spot", name: "微縮景觀世界", desc: "Miniatur Wunderland", tips: "世界最大的鐵道模型博物館，細節驚人，強烈推薦！" }
                     ]},
-                    { day: 20, date: "June 5", shortDateOnly: "5", weekday: "FRI", location: "Malmö", title: "Shopping", weatherIcon: "🛍️", temp: "18°C", hotel: "Malmö", items: [
-                        { time: "All Day", type: "spot", name: "Souvenirs", desc: "Packing", tips: "Buy Kalles Kaviar, Marabou chocolate." }
+                    { day: 20, date: "6月5日", shortDateOnly: "5", weekday: "週五", location: "馬爾默", title: "最後採買", weatherIcon: "🛍️", temp: "18°C", hotel: "馬爾默", items: [
+                        { time: "全天", type: "spot", name: "購物與打包", desc: "準備回國", tips: "超市必買：Kalles 魚子醬牙膏、Marabou 巧克力、Dala Horse 木馬。" }
                     ]},
-                    { day: 21, date: "June 6", shortDateOnly: "6", weekday: "SAT", location: "Home", title: "Departure", weatherIcon: "✈️", temp: "-", hotel: "Plane", items: [
-                        { time: "11:55", type: "transport", name: "Fly Home", desc: "CPH -> TPE" }
+                    { day: 21, date: "6月6日", shortDateOnly: "6", weekday: "週六", location: "回家", title: "踏上歸途", weatherIcon: "✈️", temp: "-", hotel: "飛機上", items: [
+                        { time: "11:55", type: "transport", name: "飛機起飛", desc: "CPH -> TPE", tips: "再見北歐！" }
                     ]},
-                    { day: 22, date: "June 7", shortDateOnly: "7", weekday: "SUN", location: "Taipei", title: "Welcome Home", weatherIcon: "🏠", temp: "30°C", hotel: "Home", items: [
-                        { time: "16:40", type: "transport", name: "Land in Taipei", desc: "End of Journey" }
+                    { day: 22, date: "6月7日", shortDateOnly: "7", weekday: "週日", location: "台北", title: "抵達台灣", weatherIcon: "🏠", temp: "30°C", hotel: "溫暖的家", items: [
+                        { time: "16:40", type: "transport", name: "抵達桃園機場", desc: "旅程結束" }
                     ]}
                 ],
 
@@ -412,11 +409,11 @@
                 },
                 
                 getTypeLabel(type) {
-                     if (type === 'food') return 'DINING';
-                    if (type === 'spot') return 'SIGHTS';
-                    if (type === 'transport') return 'TRAVEL';
-                    if (type === 'rest') return 'RELAX';
-                    return 'INFO';
+                     if (type === 'food') return '美食';
+                    if (type === 'spot') return '景點';
+                    if (type === 'transport') return '交通';
+                    if (type === 'rest') return '休息';
+                    return '資訊';
                 },
 
                 openMap(location, city) {
